@@ -10,7 +10,8 @@ import (
 	"os"
 	"strings"
 
-	MCOConfig "github.com/openshift/machine-config-operator/pkg/apis/machineconfiguration.openshift.io/v1"
+	igntypes "github.com/coreos/ignition/config/v2_2/types"
+	MachineConfig "github.com/openshift/machine-config-operator/pkg/apis/machineconfiguration.openshift.io/v1"
 )
 
 var (
@@ -41,22 +42,41 @@ func init() {
 	flag.StringVar(&ignitionver, "ignitionversion", "2.2", "Ignition version")
 }
 
-func newMachineConfig(apiver string, name string, ignitionver string, filesystem string, mode int, filepath string, base64Content string, labelmap map[string]string) MCOConfig.MCOConfig {
-	mc := MCOConfig.MCOConfig{}
+func newMachineConfig(apiver string, name string, ignitionver string, filesystem string, mode int, filepath string, base64Content string, labelmap map[string]string) MachineConfig.MachineConfig {
+
+	filecontent := igntypes.FileContents{
+		Source: "data:text/plain;charset=utf-8;base64," + base64Content,
+	}
+
+	fileembedded1 := igntypes.FileEmbedded1{
+		Mode:     &mode,
+		Contents: filecontent,
+	}
+
+	node := igntypes.Node{
+		Filesystem: filesystem,
+		Path:       filepath,
+	}
+
+	file := make([]igntypes.File, 1)
+	file[0].FileEmbedded1 = fileembedded1
+	file[0].Node = node
+
+	storage := igntypes.Storage{
+		Files: file,
+	}
+
+	mcspec := MachineConfig.MachineConfigSpec{}
+	mcspec.Config.Ignition.Version = ignitionver
+	mcspec.Config.Storage = storage
+
+	mc := MachineConfig.MachineConfig{}
 	mc.APIVersion = apiver
 	mc.Kind = "MachineConfig"
 	mc.Name = name
 	mc.Labels = labelmap
-	/*mc.Spec
+	mc.Spec = mcspec
 
-	mc.Spec.Config.Ignition.Version = ignitionver
-
-	mc.Spec.Config.Ignition.Version = ignitionver
-	tmp := make([]machineConfig.Spec.Config.Storage.Files)
-	mc.Spec.Config.Storage.Files[0].Contents.Source = "data:text/plain;charset=utf-8;base64," + base64Content
-	mc.Spec.Config.Storage.Files[0].Filesystem = filesystem
-	mc.Spec.Config.Storage.Files[0].Mode = mode
-	mc.Spec.Config.Storage.Files[0].Path = filepath*/
 	return mc
 }
 
