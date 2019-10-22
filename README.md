@@ -66,3 +66,8 @@ Just to verify:
 $ echo "dm0uc3dhcHBpbmVzcz0xMAo=" | base64 -d
 vm.swappiness=10
 ```
+
+# To do
+* Verify parameters
+* Improve the code (like A LOT)
+* Error handling
