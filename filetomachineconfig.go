@@ -124,7 +124,7 @@ func main() {
 	if name == "" {
 		r := strings.NewReplacer("/", "-", ".", "-")
 		name = "99-worker" + r.Replace(filepath)
-		fmt.Printf("name not provided, using %s as name\n", name)
+		fmt.Fprintf(os.Stderr, "name not provided, using %s as name\n", name)
 	}
 	name = strings.TrimSpace(name)
 
