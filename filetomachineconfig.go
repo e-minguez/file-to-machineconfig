@@ -2,41 +2,89 @@ package main
 
 import (
 	b64 "encoding/base64"
+	json "encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
-  "strings"
-	//machineconfig "github.com/openshift/machine-config-operator/pkg/apis/machineconfiguration.openshift.io/v1"
+	"strings"
+
+	MCOConfig "github.com/openshift/machine-config-operator/pkg/apis/machineconfiguration.openshift.io/v1"
 )
 
 var (
-	file        string
-	format      string
-	mode        int
-	signature   bool
-	user        string
-	group       string
+	file     string
+	filepath string
+	name     string
+	labels   string
+	mode     int
+	/*user        string
+	group       string*/
 	filesystem  string
 	apiver      string
-	labels      string
-	name        string
 	ignitionver string
+	content     string
 )
 
 func init() {
 	// https://coreos.com/ignition/docs/latest/configuration-v2_2.html
-	flag.StringVar(&file, "file", "", "The absolute path to the file [Required]")
-	flag.StringVar(&format, "format", "base64", "Format to convert the file")
+	flag.StringVar(&file, "file", "", "The absolute path to the local file [Required]")
+	flag.StringVar(&filepath, "filepath", "", "The absolute path to the remote file [Required]")
+	flag.StringVar(&name, "name", "", "MachineConfig object name")
+	flag.StringVar(&labels, "labels", "machineconfiguration.openshift.io/role: worker", "MachineConfig metadata labels (separted by ,)")
 	flag.IntVar(&mode, "mode", 420, "File's permission mode in octal")
-	flag.BoolVar(&signature, "signature", false, "Include sha512 signature")
-	flag.StringVar(&user, "user", "", "The user name of the owner")
-	flag.StringVar(&group, "group", "", "The group name of the owner")
+	/*flag.StringVar(&user, "user", "root", "The user name of the owner")
+	flag.StringVar(&group, "group", "root", "The group name of the owner")*/
 	flag.StringVar(&filesystem, "filesystem", "root", "The internal identifier of the filesystem in which to write the file")
 	flag.StringVar(&apiver, "apiversion", "machineconfiguration.openshift.io/v1", "MachineConfig API version")
-	flag.StringVar(&labels, "labels", "", "MachineConfig metadata labels (separted by ,)")
-	flag.StringVar(&name, "name", "", "MachineConfig object name")
 	flag.StringVar(&ignitionver, "ignitionversion", "2.2", "Ignition version")
+}
+
+func newMachineConfig(apiver string, name string, ignitionver string, filesystem string, mode int, filepath string, base64Content string, labelmap map[string]string) MCOConfig.MCOConfig {
+	mc := MCOConfig.MCOConfig{}
+	mc.APIVersion = apiver
+	mc.Kind = "MachineConfig"
+	mc.Name = name
+	mc.Labels = labelmap
+	/*mc.Spec
+
+	mc.Spec.Config.Ignition.Version = ignitionver
+
+	mc.Spec.Config.Ignition.Version = ignitionver
+	tmp := make([]machineConfig.Spec.Config.Storage.Files)
+	mc.Spec.Config.Storage.Files[0].Contents.Source = "data:text/plain;charset=utf-8;base64," + base64Content
+	mc.Spec.Config.Storage.Files[0].Filesystem = filesystem
+	mc.Spec.Config.Storage.Files[0].Mode = mode
+	mc.Spec.Config.Storage.Files[0].Path = filepath*/
+	return mc
+}
+
+func fileToBase64(file string) (string, error) {
+	f, err := ioutil.ReadFile(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return b64.StdEncoding.EncodeToString([]byte(f)), nil
+}
+
+func printUsage() {
+	fmt.Printf("Usage: %s --file /local/path/to/my/file.txt --filepath /path/to/remote/file.txt [options]\n", os.Args[0])
+	fmt.Println("Options:")
+	flag.PrintDefaults()
+	fmt.Printf("Example:\n%s --file /local/path/to/my/file.txt --filepath /path/to/remote/file.txt --label \"machineconfiguration.openshift.io/role: master\",\"example.com/foo: bar\"\n", os.Args[0])
+	os.Exit(1)
+}
+
+func labelsToMap(labels string) map[string]string {
+	// https://stackoverflow.com/questions/48465575/easy-way-to-split-string-into-map-in-go
+	labelmap := make(map[string]string)
+	entries := strings.Split(labels, ",")
+	for _, e := range entries {
+		parts := strings.Split(e, ":")
+		labelmap[parts[0]] = parts[1]
+	}
+	return labelmap
 }
 
 func main() {
@@ -49,61 +97,29 @@ func main() {
 	}
 
 	// if file is not provided, print usage
-	if file == "" {
+	if file == "" || filepath == "" {
 		printUsage()
 	}
 
-	if labels != "" {
-    labellist := strings.Split(labels, ",")
-    fmt.Printf("Labels %s", labellist[0])
-  }
-
-
-
-	//fmt.Printf("filePtr: %s, formatPtr: %s, modePtr: %i, verifyPtr: %b, userPtr: %s, groupPtr: %s, filesystemPtr: %s\n", *filePtr, *formatPtr, *modePtr, *verifyPtr, *userPtr, *groupPtr, *filesystemPtr)
-
-	/*
-		apiVersion: machineconfiguration.openshift.io/v1
-		kind: MachineConfig
-		metadata:
-		  labels:
-		    machineconfiguration.openshift.io/role: master
-		  name: masters-chrony-configuration
-		spec:
-		  config:
-		    ignition:
-		      config: {}
-		      security:
-		        tls: {}
-		      timeouts: {}
-		      version: 2.2.0
-		    networkd: {}
-		    passwd: {}
-		    storage:
-		      files:
-		      - contents:
-		          source: data:text/plain;charset=utf-8;base64,c2VydmVyIGNsb2NrLnJlZGhhdC5jb20gaWJ1cnN0CmRyaWZ0ZmlsZSAvdmFyL2xpYi9jaHJvbnkvZHJpZnQKbWFrZXN0ZXAgMS4wIDMKcnRjc3luYwpsb2dkaXIgL3Zhci9sb2cvY2hyb255Cg==
-		          verification: {}
-		        filesystem: root
-		        mode: 420
-		        path: /etc/chrony.conf
-		  osImageURL: ""
-
-	*/
-}
-
-func toBase64(file string) (string, error) {
-	f, err := ioutil.ReadFile(file)
-	if err != nil {
-		return "", err
+	if name == "" {
+		r := strings.NewReplacer("/", "-", ".", "-")
+		name = "99-worker" + r.Replace(filepath)
+		fmt.Printf("name not provided, using %s as name\n", name)
 	}
-	return b64.StdEncoding.EncodeToString([]byte(f)), nil
-}
+	name = strings.TrimSpace(name)
 
-func printUsage() {
-	fmt.Printf("Usage: %s --file /path/to/my/file.txt [options]\n", os.Args[0])
-	fmt.Println("Options:")
-	flag.PrintDefaults()
-	fmt.Printf("Example:\n%s --file /path/to/my/file.txt --label \"machineconfiguration.openshift.io/role: master\",\"example.com/labela: value\"\n", os.Args[0])
-	os.Exit(1)
+	base64Content, err := fileToBase64(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	base64Content = "data:text/plain;charset=utf-8;base64," + base64Content
+
+	labelmap := labelsToMap(strings.Replace(labels, " ", "", -1))
+
+	mc := newMachineConfig(apiver, name, ignitionver, filesystem, mode, filepath, base64Content, labelmap)
+	b, err := json.Marshal(mc)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(b))
 }
