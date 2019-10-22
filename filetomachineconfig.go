@@ -45,7 +45,7 @@ func init() {
 func newMachineConfig(apiver string, name string, ignitionver string, filesystem string, mode int, filepath string, base64Content string, labelmap map[string]string) MachineConfig.MachineConfig {
 
 	filecontent := igntypes.FileContents{
-		Source: "data:text/plain;charset=utf-8;base64," + base64Content,
+		Source: base64Content,
 	}
 
 	fileembedded1 := igntypes.FileEmbedded1{
