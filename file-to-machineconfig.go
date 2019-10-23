@@ -14,36 +14,21 @@ import (
 	MachineConfig "github.com/openshift/machine-config-operator/pkg/apis/machineconfiguration.openshift.io/v1"
 )
 
-var (
-	file     string
-	filepath string
-	name     string
-	labels   string
-	mode     int
-	/*user        string
-	group       string*/
+type parameters struct {
+	file        string
+	filepath    string
+	name        string
+	labels      string
+	mode        int
+	user        string
+	group       string
 	filesystem  string
 	apiver      string
 	ignitionver string
 	content     string
-)
-
-func init() {
-	// https://coreos.com/ignition/docs/latest/configuration-v2_2.html
-	flag.StringVar(&file, "file", "", "The absolute path to the local file [Required]")
-	flag.StringVar(&filepath, "filepath", "", "The absolute path to the remote file [Required]")
-	flag.StringVar(&name, "name", "", "MachineConfig object name")
-	flag.StringVar(&labels, "labels", "machineconfiguration.openshift.io/role: worker", "MachineConfig metadata labels (separted by ,)")
-	flag.IntVar(&mode, "mode", 420, "File's permission mode in octal")
-	/*flag.StringVar(&user, "user", "root", "The user name of the owner")
-	flag.StringVar(&group, "group", "root", "The group name of the owner")*/
-	flag.StringVar(&filesystem, "filesystem", "root", "The internal identifier of the filesystem in which to write the file")
-	flag.StringVar(&apiver, "apiversion", "machineconfiguration.openshift.io/v1", "MachineConfig API version")
-	flag.StringVar(&ignitionver, "ignitionversion", "2.2", "Ignition version")
 }
 
 func newMachineConfig(apiver string, name string, ignitionver string, filesystem string, mode int, filepath string, base64Content string, labelmap map[string]string) MachineConfig.MachineConfig {
-
 	filecontent := igntypes.FileContents{
 		Source: base64Content,
 	}
@@ -109,6 +94,20 @@ func labelsToMap(labels string) map[string]string {
 
 func main() {
 
+	data := parameters{}
+
+	// https://coreos.com/ignition/docs/latest/configuration-v2_2.html
+	flag.StringVar(&data.file, "file", "", "The absolute path to the local file [Required]")
+	flag.StringVar(&data.filepath, "filepath", "", "The absolute path to the remote file [Required]")
+	flag.StringVar(&data.name, "name", "", "MachineConfig object name")
+	flag.StringVar(&data.labels, "labels", "machineconfiguration.openshift.io/role: worker", "MachineConfig metadata labels (separted by ,)")
+	flag.IntVar(&data.mode, "mode", 420, "File's permission mode in octal")
+	flag.StringVar(&data.user, "user", "root", "The user name of the owner")
+	flag.StringVar(&data.group, "group", "root", "The group name of the owner")
+	flag.StringVar(&data.filesystem, "filesystem", "root", "The internal identifier of the filesystem in which to write the file")
+	flag.StringVar(&data.apiver, "apiversion", "machineconfiguration.openshift.io/v1", "MachineConfig API version")
+	flag.StringVar(&data.ignitionver, "ignitionversion", "2.2", "Ignition version")
+
 	flag.Parse()
 
 	// if user does not supply flags, print usage
@@ -117,26 +116,26 @@ func main() {
 	}
 
 	// if file is not provided, print usage
-	if file == "" || filepath == "" {
+	if data.file == "" || data.filepath == "" {
 		printUsage()
 	}
 
-	if name == "" {
+	if data.name == "" {
 		r := strings.NewReplacer("/", "-", ".", "-")
-		name = "99-worker" + r.Replace(filepath)
-		fmt.Fprintf(os.Stderr, "name not provided, using %s as name\n", name)
+		data.name = "99-worker" + r.Replace(data.filepath)
+		fmt.Fprintf(os.Stderr, "name not provided, using %s as name\n", data.name)
 	}
-	name = strings.TrimSpace(name)
+	data.name = strings.TrimSpace(data.name)
 
-	base64Content, err := fileToBase64(file)
+	base64Content, err := fileToBase64(data.file)
 	if err != nil {
 		log.Fatal(err)
 	}
 	base64Content = "data:text/plain;charset=utf-8;base64," + base64Content
 
-	labelmap := labelsToMap(strings.Replace(labels, " ", "", -1))
+	labelmap := labelsToMap(strings.Replace(data.labels, " ", "", -1))
 
-	mc := newMachineConfig(apiver, name, ignitionver, filesystem, mode, filepath, base64Content, labelmap)
+	mc := newMachineConfig(data.apiver, data.name, data.ignitionver, data.filesystem, data.mode, data.filepath, base64Content, labelmap)
 	b, err := json.Marshal(mc)
 	if err != nil {
 		log.Fatal(err)
