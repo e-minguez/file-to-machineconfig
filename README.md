@@ -6,7 +6,7 @@ NOTE: This is using currently [Configuration specification 2.2](https://coreos.c
 ## Usage
 
 ```
-file-to-machineconfig --file /local/path/to/my/file.txt --filepath /path/to/remote/file.txt > ./my-machine-config.json
+file-to-machineconfig --file /local/path/to/my/file.txt > ./my-machine-config.json
 ```
 
 Use `file-to-machineconfig --help` for a more complete usage and flags.
@@ -16,7 +16,7 @@ Use `file-to-machineconfig --help` for a more complete usage and flags.
 ```
 $ echo "vm.swappiness=10" > ./myswap.conf
 
-$ file-to-machineconfig --file ./myswap.conf --filepath /etc/sysctl.d/swappiness.conf | jq .
+$ file-to-machineconfig --file ./myswap.conf --remote /etc/sysctl.d/swappiness.conf | jq .
 name not provided, using 99-worker-etc-sysctl-d-swappiness-conf as name
 {
   "kind": "MachineConfig",
