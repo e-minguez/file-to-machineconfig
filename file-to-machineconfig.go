@@ -88,7 +88,7 @@ func fileToBase64(file string) (string, error) {
 }
 
 func printUsage() {
-	fmt.Printf("Usage: %s --file /local/path/to/my/file.txt --filepath /path/to/remote/file.txt [options]\n", os.Args[0])
+	fmt.Printf("Usage: %s --file /local/path/to/my/file.txt [options]\n", os.Args[0])
 	fmt.Println("Options:")
 	flag.PrintDefaults()
 	fmt.Printf("Example:\n%s --file /local/path/to/my/file.txt --filepath /path/to/remote/file.txt --label \"machineconfiguration.openshift.io/role: master\",\"example.com/foo: bar\"\n", os.Args[0])
@@ -135,6 +135,7 @@ func checkParameters(rawdata *parameters) {
 		if err != nil {
 			log.Fatal(err)
 		}
+		log.Printf("remote not provided, using '%s' as the original file\n", rawdata.remotepath)
 	}
 
 	// Normalize name
@@ -147,30 +148,28 @@ func checkParameters(rawdata *parameters) {
 		}
 		r := strings.NewReplacer("/", "-", ".", "-")
 		rawdata.name = strings.TrimSpace("99-" + nodetype + r.Replace(rawdata.remotepath))
-		log.Printf("name not provided, using %s as name\n", rawdata.name)
+		log.Printf("name not provided, using '%s' as name\n", rawdata.name)
 	}
 
 	// Copy file mode if not provided
 	if rawdata.mode == 0 {
-		// This doesn't work yet
-		log.Printf("mode not provided, using (%#o)", file.Mode().Perm())
-		mode, err := strconv.ParseInt(file.Mode().Perm(), 8, 0)
-		if err != nil {
-			log.Fatal(err)
-		}
-		rawdata.mode = int(mode)
-		log.Printf("mode not provided, using the same (%d) as the original file", rawdata.mode)
+		filemode := file.Mode().Perm()
+		log.Printf("mode not provided, using '%#o' as the original file", filemode)
+		// Ignition requires decimal
+		rawdata.mode = int(filemode)
 	}
 
 	// Copy file user if not provided
 	if rawdata.user == "" {
 		fileuser, _ := user.LookupId(strconv.Itoa(int(file.Sys().(*syscall.Stat_t).Uid)))
+		log.Printf("user not provided, using '%s' as the original file", fileuser.Username)
 		rawdata.user = fileuser.Username
 	}
 
 	// Copy file group if not provided
 	if rawdata.group == "" {
 		filegroup, _ := user.LookupId(strconv.Itoa(int(file.Sys().(*syscall.Stat_t).Gid)))
+		log.Printf("group not provided, using '%s' as the original file", filegroup.Username)
 		rawdata.group = filegroup.Username
 	}
 
