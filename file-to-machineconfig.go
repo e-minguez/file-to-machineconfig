@@ -16,6 +16,7 @@ import (
 
 	igntypes "github.com/coreos/ignition/config/v2_2/types"
 	MachineConfig "github.com/openshift/machine-config-operator/pkg/apis/machineconfiguration.openshift.io/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type parameters struct {
@@ -23,68 +24,65 @@ type parameters struct {
 	remotepath  string
 	name        string
 	labels      string
-	mode        int
 	user        string
 	group       string
 	filesystem  string
 	apiver      string
 	ignitionver string
 	content     string
+	mode        int
 }
 
-func newMachineConfig(apiver string, name string, ignitionver string, filesystem string, mode int, username string, groupname string, remotepath string, base64Content string, labelmap map[string]string) MachineConfig.MachineConfig {
-	filecontent := igntypes.FileContents{
-		Source: base64Content,
+func newMachineConfig(apiver, name, ignitionver, filesystem, username, groupname, remotepath, base64Content string, mode int, labelmap map[string]string) MachineConfig.MachineConfig {
+	// So far, a single file is supported
+	file := make([]igntypes.File, 1)
+	file[0].FileEmbedded1 = igntypes.FileEmbedded1{
+		Mode: &mode,
+		Contents: igntypes.FileContents{
+			Source: base64Content,
+		},
 	}
-
-	fileembedded1 := igntypes.FileEmbedded1{
-		Mode:     &mode,
-		Contents: filecontent,
-	}
-
-	user := igntypes.NodeUser{
-		Name: username,
-	}
-
-	group := igntypes.NodeGroup{
-		Name: groupname,
-	}
-
-	node := igntypes.Node{
+	file[0].Node = igntypes.Node{
 		Filesystem: filesystem,
 		Path:       remotepath,
-		User:       &user,
-		Group:      &group,
+		User: &igntypes.NodeUser{
+			Name: username,
+		},
+		Group: &igntypes.NodeGroup{
+			Name: groupname,
+		},
 	}
 
-	file := make([]igntypes.File, 1)
-	file[0].FileEmbedded1 = fileembedded1
-	file[0].Node = node
-
-	storage := igntypes.Storage{
-		Files: file,
+	mc := MachineConfig.MachineConfig{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "MachineConfig",
+			APIVersion: apiver,
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   name,
+			Labels: labelmap,
+		},
+		Spec: MachineConfig.MachineConfigSpec{
+			Config: igntypes.Config{
+				Storage: igntypes.Storage{
+					Files: file,
+				},
+				Ignition: igntypes.Ignition{
+					Version: ignitionver,
+				},
+			},
+		},
 	}
-
-	mcspec := MachineConfig.MachineConfigSpec{}
-	mcspec.Config.Ignition.Version = ignitionver
-	mcspec.Config.Storage = storage
-
-	mc := MachineConfig.MachineConfig{}
-	mc.APIVersion = apiver
-	mc.Kind = "MachineConfig"
-	mc.Name = name
-	mc.Labels = labelmap
-	mc.Spec = mcspec
 
 	return mc
 }
 
-func fileToBase64(file string) (string, error) {
+func fileToBase64(file string) string {
 	f, err := ioutil.ReadFile(file)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return b64.StdEncoding.EncodeToString([]byte(f)), nil
+	return b64.StdEncoding.EncodeToString([]byte(f))
 }
 
 func printUsage() {
@@ -96,9 +94,11 @@ func printUsage() {
 }
 
 func labelsToMap(labels string) map[string]string {
+	// Remove blanks and split the labels by the comma
+	entries := strings.Split((strings.Replace(labels, " ", "", -1)), ",")
+
 	// https://stackoverflow.com/questions/48465575/easy-way-to-split-string-into-map-in-go
 	labelmap := make(map[string]string)
-	entries := strings.Split(labels, ",")
 	for _, e := range entries {
 		parts := strings.Split(e, ":")
 		labelmap[parts[0]] = parts[1]
@@ -198,17 +198,20 @@ func main() {
 		printUsage()
 	}
 
+	// Some sanity checks/normalization
 	checkParameters(&data)
 
-	base64Content, err := fileToBase64(data.localpath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	base64Content = "data:text/plain;charset=utf-8;base64," + base64Content
+	// Create the base64 data with the proper ignition prefix
+	base64Content := "data:text/plain;charset=utf-8;base64," + fileToBase64(data.localpath)
 
-	labelmap := labelsToMap(strings.Replace(data.labels, " ", "", -1))
+	// Create a map with the labels (as required by the machine-config struct)
+	labelmap := labelsToMap(data.labels)
 
-	mc := newMachineConfig(data.apiver, data.name, data.ignitionver, data.filesystem, data.mode, data.user, data.group, data.remotepath, base64Content, labelmap)
+	// Fill the machine-config struct
+	mc := newMachineConfig(data.apiver, data.name, data.ignitionver, data.filesystem, data.user, data.group, data.remotepath, base64Content, data.mode, labelmap)
+
+	// Convert the machine-config struct to json
+	// TO-DO: either json or yaml
 	b, err := json.Marshal(mc)
 	if err != nil {
 		log.Fatal(err)

@@ -2,27 +2,28 @@
 
 
 [[projects]]
-  digest = "1:90149e2f8931e6f8b4e929da1bc8bc74fb652021f2faa2d73a15f24cce337a02"
+  branch = "go15"
+  digest = "1:d783da33967e4bb5a5d276d5db99768e78d06c5934c88d10f68231b6681f8ef9"
   name = "github.com/ajeddeloh/go-json"
   packages = ["."]
   pruneopts = "UT"
-  revision = "73d058cf8437a1989030afe571eeab9f90eebbbd"
+  revision = "6a2fe990e08303c82d966297ddb29a58678a4783"
 
 [[projects]]
-  digest = "1:5f5b0d2ed45f61f3add4d4a8d26812c36fc78f177e3e16941170426b1b4fcf69"
+  digest = "1:05ffeeed3f0f05520de0679f6aa3219ffee69cfd6d9fb6c194879d4c818ad670"
   name = "github.com/coreos/go-semver"
   packages = ["semver"]
   pruneopts = "UT"
-  revision = "294930c1e79c64e7dbe360054274fdad492c8cf5"
-  version = "v0.1.0"
+  revision = "e214231b295a8ea9479f11b70b35d5acf3556d9b"
+  version = "v0.3.0"
 
 [[projects]]
-  digest = "1:2ed7e62c94645be6b47be0911035fbabaa6271b20138d3643488716b5c6cad41"
+  digest = "1:027c348e13b5f924c925aebf0d2932545644c78da3f43cc82327220286084539"
   name = "github.com/coreos/go-systemd"
   packages = ["unit"]
   pruneopts = "UT"
-  revision = "39ca1b05acc7ad1220e09f133283b8859a8b71ab"
-  version = "v17"
+  revision = "e64a0ec8b42a61e2a9801dc1d0abe539dea79197"
+  version = "v20"
 
 [[projects]]
   digest = "1:fb5b2aed0d774e210c1f2c0893e620cb3fa98957d3b925d0378f93b9613eb605"
@@ -50,28 +51,31 @@
   version = "v0.26.0"
 
 [[projects]]
-  digest = "1:f83d740263b44fdeef3e1bce6147b5d7283fcad1a693d39639be33993ecf3db1"
+  digest = "1:582e25eccee928dc12416ea4c23b6dae8f3b5687730632aa1473ebebe80a2359"
   name = "github.com/gogo/protobuf"
   packages = [
     "proto",
     "sortkeys",
   ]
   pruneopts = "UT"
-  revision = "c0656edd0d9eab7c66d1eb0c568f9039345796f7"
+  revision = "5628607bb4c51c3157aacc3a50f0ab707582b805"
+  version = "v1.3.1"
 
 [[projects]]
-  digest = "1:2edd2416f89b4e841df0e4a78802ce14d2bc7ad79eba1a45986e39f0f8cb7d87"
+  branch = "master"
+  digest = "1:1ba1d79f2810270045c328ae5d674321db34e3aae468eb4233883b473c5c0467"
   name = "github.com/golang/glog"
   packages = ["."]
   pruneopts = "UT"
-  revision = "44145f04b68cf362d9c4df2182967c2275eaefed"
+  revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
 
 [[projects]]
-  digest = "1:41bfd4219241b7f7d6e6fdb13fc712576f1337e68e6b895136283b76928fdd66"
+  digest = "1:a6181aca1fd5e27103f9a920876f29ac72854df7345a39f3b01e61c8c94cc8af"
   name = "github.com/google/gofuzz"
   packages = ["."]
   pruneopts = "UT"
-  revision = "44d81051d367757e1c7c6a5a86423ece9afcf63c"
+  revision = "f140a6486e521aad38f5917de355cbf147cc0496"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:5bfff65eba275066cdf304a0faf91c7709e0f612ebb9760046adf6035d63ef5c"
@@ -93,23 +97,25 @@
   revision = "9a301d65acbb728fcc3ace14f45f511a4cfeea9c"
 
 [[projects]]
+  branch = "master"
   digest = "1:91ed6116b126ec7fa7b9f9460356ee6b3005e5ed320b8e85510937f44d3d62d5"
   name = "go4.org"
   packages = ["errorutil"]
   pruneopts = "UT"
-  revision = "03efcb870d84809319ea509714dd6d19a1498483"
+  revision = "132d2879e1e95dadb805c26cd339344efd1a67c8"
 
 [[projects]]
-  digest = "1:51168244381231fe91816c4cd7769902076dcc9c6506aa277bafeb07ea097b74"
+  branch = "master"
+  digest = "1:69ee2954e0006a4b8907ce5130a2df12195f443a7c570aa3afb98f8aae65ae7a"
   name = "golang.org/x/net"
   packages = [
+    "http/httpguts",
     "http2",
     "http2/hpack",
     "idna",
-    "lex/httplex",
   ]
   pruneopts = "UT"
-  revision = "1c05540f6879653db88113bc4a2b70aec4bd491f"
+  revision = "ec77196f6094c3492a8b61f2c11cf937f78992ae"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -137,12 +143,12 @@
   version = "v0.3.2"
 
 [[projects]]
-  digest = "1:ef72505cf098abdd34efeea032103377bec06abb61d8a06f002d5d296a4b1185"
+  digest = "1:2d1fbdc6777e5408cabeb02bf336305e724b925ff4546ded0fa8715a7267922a"
   name = "gopkg.in/inf.v0"
   packages = ["."]
   pruneopts = "UT"
-  revision = "3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4"
-  version = "v0.9.0"
+  revision = "d2d2541c53f18d2a059457998ce2876cc8e67cbf"
+  version = "v0.9.1"
 
 [[projects]]
   digest = "1:84cb0f4ee3ca34a3e2f1c43582a9101a5cabe51cdf21fe3fb96509b12d735ef1"
@@ -188,6 +194,7 @@
   input-imports = [
     "github.com/coreos/ignition/config/v2_2/types",
     "github.com/openshift/machine-config-operator/pkg/apis/machineconfiguration.openshift.io/v1",
+    "k8s.io/apimachinery/pkg/apis/meta/v1",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
