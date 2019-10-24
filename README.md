@@ -1,10 +1,8 @@
 # file-to-machineconfig
 
-Simple tool to convert files to MachineConfig objects to be used with the machine-config-operator in k8s/OpenShift.
+Simple tool to convert files to MachineConfig objects to be used with the machine-config-operator in Kubernetes/OpenShift.
 
-<aside class="notice">
-It only supports [Ignition configuration specification 2.2](https://coreos.com/ignition/docs/latest/configuration-v2_2.html)
-</aside>
+> **NOTE**: It only supports [Ignition configuration specification 2.2](https://coreos.com/ignition/docs/latest/configuration-v2_2.html)
 
 ## Usage
 
@@ -14,9 +12,7 @@ file-to-machineconfig --file /local/path/to/my/file.txt > ./my-machine-config.js
 
 Use `file-to-machineconfig --help` for a more complete usage and flags.
 
-<aside class="warning">
-Review the generated output first, do not pipe the output directly to `kubectl` or `oc`!!!
-</aside>
+> **WARNING**: Review the generated output first, **do not pipe the output directly to `kubectl` or `oc`**!!!
 
 ## Example
 
