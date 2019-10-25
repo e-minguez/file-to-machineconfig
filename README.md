@@ -2,7 +2,7 @@
 
 Simple tool to convert files to MachineConfig objects to be used with the machine-config-operator in Kubernetes/OpenShift.
 
-> **NOTE**: It only supports [Ignition configuration specification 2.2](https://coreos.com/ignition/docs/latest/configuration-v2_2.html)
+> **NOTE**: It only supports [Ignition configuration specification 2.2](https://coreos.com/ignition/docs/latest/configuration-v2_2.html) so far.
 
 ## Usage
 
