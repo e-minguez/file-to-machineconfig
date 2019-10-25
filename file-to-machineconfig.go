@@ -46,7 +46,11 @@ func fileToBase64(file string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return b64.StdEncoding.EncodeToString([]byte(f))
+	encodedcontent := b64.StdEncoding.EncodeToString([]byte(f))
+	if encodedcontent == "" {
+		log.Fatal("The content of the file couldn't be encoded in base64")
+	}
+	return encodedcontent
 }
 
 func labelsToMap(labels string) map[string]string {
