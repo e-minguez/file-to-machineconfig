@@ -33,48 +33,12 @@ type parameters struct {
 	mode        int
 }
 
-func newMachineConfig(apiver, name, ignitionver, filesystem, username, groupname, remotepath, base64Content string, mode int, labelmap map[string]string) MachineConfig.MachineConfig {
-	// So far, a single file is supported
-	file := make([]igntypes.File, 1)
-	file[0].FileEmbedded1 = igntypes.FileEmbedded1{
-		Mode: &mode,
-		Contents: igntypes.FileContents{
-			Source: base64Content,
-		},
-	}
-	file[0].Node = igntypes.Node{
-		Filesystem: filesystem,
-		Path:       remotepath,
-		User: &igntypes.NodeUser{
-			Name: username,
-		},
-		Group: &igntypes.NodeGroup{
-			Name: groupname,
-		},
-	}
-
-	mc := MachineConfig.MachineConfig{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "MachineConfig",
-			APIVersion: apiver,
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:   name,
-			Labels: labelmap,
-		},
-		Spec: MachineConfig.MachineConfigSpec{
-			Config: igntypes.Config{
-				Storage: igntypes.Storage{
-					Files: file,
-				},
-				Ignition: igntypes.Ignition{
-					Version: ignitionver,
-				},
-			},
-		},
-	}
-
-	return mc
+func printUsage() {
+	fmt.Printf("Usage: %s --file /local/path/to/my/file.txt [options]\n", os.Args[0])
+	fmt.Println("Options:")
+	flag.PrintDefaults()
+	fmt.Printf("Example:\n%s --file /local/path/to/my/file.txt --filepath /path/to/remote/file.txt --label \"machineconfiguration.openshift.io/role: master\",\"example.com/foo: bar\"\n", os.Args[0])
+	os.Exit(1)
 }
 
 func fileToBase64(file string) string {
@@ -83,14 +47,6 @@ func fileToBase64(file string) string {
 		log.Fatal(err)
 	}
 	return b64.StdEncoding.EncodeToString([]byte(f))
-}
-
-func printUsage() {
-	fmt.Printf("Usage: %s --file /local/path/to/my/file.txt [options]\n", os.Args[0])
-	fmt.Println("Options:")
-	flag.PrintDefaults()
-	fmt.Printf("Example:\n%s --file /local/path/to/my/file.txt --filepath /path/to/remote/file.txt --label \"machineconfiguration.openshift.io/role: master\",\"example.com/foo: bar\"\n", os.Args[0])
-	os.Exit(1)
 }
 
 func labelsToMap(labels string) map[string]string {
@@ -123,8 +79,13 @@ func checkParameters(rawdata *parameters) {
 	// TODO: Verify remotepath is a file path
 
 	// Ignition 2.2 only ¯\_(ツ)_/¯
-	if rawdata.ignitionver != "2.2" {
+	switch {
+	case rawdata.ignitionver == "":
+		rawdata.ignitionver = "2.2"
+	case rawdata.ignitionver != "2.2":
 		log.Fatalf("Ignition version must be 2.2")
+	default:
+		log.Fatalf("You shouldn't fail here...")
 	}
 
 	// Normalize stuff
@@ -173,6 +134,78 @@ func checkParameters(rawdata *parameters) {
 		rawdata.group = filegroup.Username
 	}
 
+	// Set label if not provided
+	if rawdata.labels == "" {
+		defaultLabel := "machineconfiguration.openshift.io/role: worker"
+		log.Printf("labels not provided, using '%s' by default", defaultLabel)
+		rawdata.labels = defaultLabel
+	}
+
+	// Set filesystem if not provided
+	if rawdata.filesystem == "" {
+		defaultFilesystem := "root"
+		log.Printf("filesystem not provided, using '%s' by default", defaultFilesystem)
+		rawdata.filesystem = defaultFilesystem
+	}
+
+	// Set apiver if not provided
+	if rawdata.apiver == "" {
+		defaultApiversion := "machineconfiguration.openshift.io/v1"
+		log.Printf("apiver not provided, using '%s' by default", defaultApiversion)
+		rawdata.apiver = defaultApiversion
+	}
+
+}
+
+func newMachineConfig(data parameters) MachineConfig.MachineConfig {
+
+	// Create the base64 data with the proper ignition prefix
+	base64Content := "data:text/plain;charset=utf-8;base64," + fileToBase64(data.localpath)
+
+	// Create a map with the labels (as required by the machine-config struct)
+	labelmap := labelsToMap(data.labels)
+
+	// So far, a single file is supported
+	file := make([]igntypes.File, 1)
+	file[0].FileEmbedded1 = igntypes.FileEmbedded1{
+		Mode: &data.mode,
+		Contents: igntypes.FileContents{
+			Source: base64Content,
+		},
+	}
+	file[0].Node = igntypes.Node{
+		Filesystem: data.filesystem,
+		Path:       data.remotepath,
+		User: &igntypes.NodeUser{
+			Name: data.user,
+		},
+		Group: &igntypes.NodeGroup{
+			Name: data.group,
+		},
+	}
+
+	mc := MachineConfig.MachineConfig{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "MachineConfig",
+			APIVersion: data.apiver,
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   data.name,
+			Labels: labelmap,
+		},
+		Spec: MachineConfig.MachineConfigSpec{
+			Config: igntypes.Config{
+				Storage: igntypes.Storage{
+					Files: file,
+				},
+				Ignition: igntypes.Ignition{
+					Version: data.ignitionver,
+				},
+			},
+		},
+	}
+
+	return mc
 }
 
 func main() {
@@ -183,13 +216,13 @@ func main() {
 	flag.StringVar(&data.localpath, "file", "", "The path to the local file [Required]")
 	flag.StringVar(&data.remotepath, "remote", "", "The absolute path to the remote file")
 	flag.StringVar(&data.name, "name", "", "MachineConfig object name")
-	flag.StringVar(&data.labels, "labels", "machineconfiguration.openshift.io/role: worker", "MachineConfig metadata labels (separted by ,)")
-	flag.IntVar(&data.mode, "mode", 0, "File's permission mode in octal")
+	flag.StringVar(&data.labels, "labels", "", "MachineConfig metadata labels (separted by ,)")
 	flag.StringVar(&data.user, "user", "", "The user name of the owner")
 	flag.StringVar(&data.group, "group", "", "The group name of the owner")
-	flag.StringVar(&data.filesystem, "filesystem", "root", "The internal identifier of the filesystem in which to write the file")
-	flag.StringVar(&data.apiver, "apiversion", "machineconfiguration.openshift.io/v1", "MachineConfig API version")
-	flag.StringVar(&data.ignitionver, "ignitionversion", "2.2", "Ignition version")
+	flag.StringVar(&data.filesystem, "filesystem", "", "The internal identifier of the filesystem in which to write the file")
+	flag.StringVar(&data.apiver, "apiversion", "", "MachineConfig API version")
+	flag.StringVar(&data.ignitionver, "ignitionversion", "", "Ignition version")
+	flag.IntVar(&data.mode, "mode", 0, "File's permission mode in octal")
 
 	flag.Parse()
 
@@ -201,14 +234,8 @@ func main() {
 	// Some sanity checks/normalization
 	checkParameters(&data)
 
-	// Create the base64 data with the proper ignition prefix
-	base64Content := "data:text/plain;charset=utf-8;base64," + fileToBase64(data.localpath)
-
-	// Create a map with the labels (as required by the machine-config struct)
-	labelmap := labelsToMap(data.labels)
-
 	// Fill the machine-config struct
-	mc := newMachineConfig(data.apiver, data.name, data.ignitionver, data.filesystem, data.user, data.group, data.remotepath, base64Content, data.mode, labelmap)
+	mc := newMachineConfig(data)
 
 	// Convert the machine-config struct to json
 	// TO-DO: either json or yaml
