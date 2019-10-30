@@ -74,9 +74,9 @@ func CheckParameters(rawdata *Parameters) {
 	// Ignition 2.2 only ¯\_(ツ)_/¯
 	switch {
 	case rawdata.IgnitionVer == "":
-		rawdata.IgnitionVer = "2.2"
-	case rawdata.IgnitionVer != "2.2":
-		log.Fatalf("Ignition version must be 2.2")
+		rawdata.IgnitionVer = "2.2.0"
+	case rawdata.IgnitionVer != "2.2.0":
+		log.Fatalf("Ignition version must be 2.2.0")
 	default:
 		log.Fatalf("You shouldn't fail here...")
 	}
