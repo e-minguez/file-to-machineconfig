@@ -9,14 +9,15 @@ Simple tool to convert files to MachineConfig objects to be used with the machin
 Download the latest binary release:
 
 ```shell
-wget -L https://github.com/e-minguez/file-to-machineconfig/releases/download/0.0.1/file-to-machineconfig && \
-  chmod a+x ./file-to-machine-config
+wget -L https://github.com/e-minguez/file-to-machineconfig/releases/download/0.0.1/file-to-machineconfig-linux-amd64 && \
+  mv file-to-machineconfig-linux-amd64 ./file-to-machineconfig && \
+  chmod a+x ./file-to-machineconfig
 ```
 
 Or, get the code with:
 
 ```shell
-go get github.com/e-minguez/file-to-machineconfig
+go get -u -v github.com/e-minguez/file-to-machineconfig
 ```
 
 Then:
