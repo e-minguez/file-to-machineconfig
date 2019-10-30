@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-file-to-machineconfig
+file-to-machineconfig-*
 
 # Test binary, build with `go test -c`
 *.test
