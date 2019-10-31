@@ -10,25 +10,31 @@ jobs:
         with:
           go-version: 1.13
 
-      - name: Check out source code
-        uses: actions/checkout@v1
-
       - name: Prepare stuff
         run: |
           mkdir -p ~/go/bin
           curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
+      - name: Get source
+        run: |
+          export PATH=~/go/bin:$PATH
+          export GOPATH=~/go/
+          go get github.com/e-minguez/file-to-machineconfig
+
       - name: Get dependencies
         run: |
           export PATH=~/go/bin:$PATH
+          export GOPATH=~/go/
           make deps
       
       - name: Build
         run: |
           export PATH=~/go/bin:$PATH
+          export GOPATH=~/go/
           make build
 
       - name: Test
         run: |
           export PATH=~/go/bin:$PATH
+          export GOPATH=~/go/
           make test
