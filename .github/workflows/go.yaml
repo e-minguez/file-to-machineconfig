@@ -16,17 +16,19 @@ jobs:
       - name: Prepare stuff
         run: |
           mkdir -p ~/go/bin
+          curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
       - name: Get dependencies
         run: |
-          if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            ~/go/bin/dep ensure
-          fi
-          go get -v -t -d ./...
+          export PATH=~/go/bin:$PATH
+          make deps
       
       - name: Build
-        run: make build
+        run: |
+          export PATH=~/go/bin:$PATH
+          make build
 
       - name: Test
-        run: make test
+        run: |
+          export PATH=~/go/bin:$PATH
+          make test
