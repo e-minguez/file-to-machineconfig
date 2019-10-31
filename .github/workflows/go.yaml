@@ -13,6 +13,10 @@ jobs:
       - name: Check out source code
         uses: actions/checkout@v1
 
+      - name: Prepare stuff
+        run: |
+          mkdir -p ~/go/bin
+
       - name: Get dependencies
         run: |
           if [ -f Gopkg.toml ]; then
