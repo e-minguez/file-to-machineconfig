@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
 
 	"github.com/e-minguez/file-to-machineconfig/pkg/converter"
 )
@@ -24,8 +25,8 @@ func main() {
 
 	// https://coreos.com/ignition/docs/latest/configuration-v2_2.html
 	flag.StringVar(&data.LocalPath, "file", "", "The path to the local file [Required]")
-	flag.StringVar(&data.RemotePath, "remote", "", "The absolute path to the remote file")
-	flag.StringVar(&data.Name, "name", "", "MachineConfig object name")
+	flag.StringVar(&data.RemotePath, "remote", "", "The absolute path to the remote file [Required if running on Windows]")
+	flag.StringVar(&data.Name, "name", "", "MachineConfig object name [Required if running on Windows]")
 	flag.StringVar(&data.Labels, "labels", "", "MachineConfig metadata labels (separted by ,)")
 	flag.StringVar(&data.User, "user", "", "The user name of the owner")
 	flag.StringVar(&data.Group, "group", "", "The group name of the owner")
@@ -38,6 +39,10 @@ func main() {
 
 	// if user does not supply flags, print usage
 	if flag.NFlag() == 0 || data.LocalPath == "" {
+		printUsage()
+	}
+
+	if runtime.GOOS == "windows" && (data.LocalPath == "" || data.RemotePath == "" || data.Name == "") {
 		printUsage()
 	}
 
