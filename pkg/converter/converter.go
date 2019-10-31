@@ -103,6 +103,10 @@ func CheckParameters(rawdata *Parameters) {
 			}
 			log.Printf("remote not provided, using '%s' as the original file\n", rawdata.RemotePath)
 		}
+	} else {
+		if filepath.IsAbs(rawdata.RemotePath) == false {
+			log.Fatalf("%s is not an absolute path", rawdata.RemotePath)
+		}
 	}
 
 	// Normalize name
