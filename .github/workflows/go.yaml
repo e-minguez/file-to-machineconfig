@@ -25,16 +25,19 @@ jobs:
         run: |
           export PATH=~/go/bin:$PATH
           export GOPATH=~/go/
+          cd ${GOPATH}/src/github.com/e-minguez/file-to-machineconfig
           make deps
       
       - name: Build
         run: |
           export PATH=~/go/bin:$PATH
           export GOPATH=~/go/
+          cd ${GOPATH}/src/github.com/e-minguez/file-to-machineconfig
           make build
 
       - name: Test
         run: |
           export PATH=~/go/bin:$PATH
           export GOPATH=~/go/
+          cd ${GOPATH}/src/github.com/e-minguez/file-to-machineconfig
           make test
