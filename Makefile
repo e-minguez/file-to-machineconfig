@@ -8,10 +8,11 @@ GOGET=$(GOCMD) get
 BINARY_NAME=file-to-machineconfig
 BINARY_UNIX=$(BINARY_NAME)-linux-amd64
 BINARY_OSX=$(BINARY_NAME)-darwin-amd64
+BINARY_WINDOWS=$(BINARY_NAME)-windows-amd64.exe
 
 all: test build
 
-build-all: build-linux build-osx
+build-all: build-linux build-osx build-windows
 
 build: 
 	$(GOBUILD) -o $(BINARY_NAME) -v
@@ -45,3 +46,7 @@ build-linux:
 build-osx:
 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GOBUILD) -o $(BINARY_OSX) -v
 	sha256sum $(BINARY_OSX) > $(BINARY_OSX).sha256
+
+build-windows:
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(BINARY_WINDOWS) -v
+	sha256sum $(BINARY_WINDOWS) > $(BINARY_WINDOWS).sha256
