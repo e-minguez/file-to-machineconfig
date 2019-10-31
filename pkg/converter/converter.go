@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	igntypes "github.com/coreos/ignition/config/v2_2/types"
@@ -93,24 +94,32 @@ func CheckParameters(rawdata *Parameters) {
 
 	// Remote path = local path if not explicitely used
 	if rawdata.RemotePath == "" {
-		rawdata.RemotePath, err = filepath.Abs(rawdata.LocalPath)
-		if err != nil {
-			log.Fatal(err)
+		if runtime.GOOS == "windows" {
+			log.Fatalf("If running on Windows, remote location is mandatory")
+		} else {
+			rawdata.RemotePath, err = filepath.Abs(rawdata.LocalPath)
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Printf("remote not provided, using '%s' as the original file\n", rawdata.RemotePath)
 		}
-		log.Printf("remote not provided, using '%s' as the original file\n", rawdata.RemotePath)
 	}
 
 	// Normalize name
 	if rawdata.Name == "" {
-		var nodetype string
-		if strings.Contains(rawdata.Labels, "master") {
-			nodetype = "master"
+		if runtime.GOOS == "windows" {
+			log.Fatalf("If running on Windows, name is mandatory")
 		} else {
-			nodetype = "worker"
+			var nodetype string
+			if strings.Contains(rawdata.Labels, "master") {
+				nodetype = "master"
+			} else {
+				nodetype = "worker"
+			}
+			r := strings.NewReplacer("/", "-", ".", "-")
+			rawdata.Name = strings.TrimSpace(defaultMachineConfigPrefix + nodetype + r.Replace(rawdata.RemotePath))
+			log.Printf("name not provided, using '%s' as name\n", rawdata.Name)
 		}
-		r := strings.NewReplacer("/", "-", ".", "-")
-		rawdata.Name = strings.TrimSpace(defaultMachineConfigPrefix + nodetype + r.Replace(rawdata.RemotePath))
-		log.Printf("name not provided, using '%s' as name\n", rawdata.Name)
 	}
 
 	// Set label if not provided
