@@ -13,8 +13,11 @@ jobs:
       - name: Check out source code
         uses: actions/checkout@v1
 
+      - name: Deps
+        run: make deps
+
       - name: Build
-        run: go build .
+        run: make build
 
       - name: Test
-        run: go test -v .
+        run: make test
