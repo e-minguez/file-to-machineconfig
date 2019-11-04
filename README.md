@@ -4,12 +4,32 @@ Simple tool to convert files to MachineConfig objects to be used with the machin
 
 > **NOTE**: It only supports [Ignition configuration specification 2.2](https://coreos.com/ignition/docs/latest/configuration-v2_2.html) so far.
 
+## Features
+
+- [x] Linux/OSX/Windows support (and binaries available as [releases/](releases))
+- [x] remote path = local path if not provided
+- [x] remote owner/group = local if not provided
+- [x] sane defaults (...)
+- [x] normalized parameters (...)
+- [x] multiple labels support
+- [x] base64 file encoded content support
+- [x] plain file content support
+- [x] json output
+- [x] yaml output
+
+## To Do
+
+- [] Improve normalization and defaults
+- [] Multiple ignition version
+- [] Good code
+- [] Better error handling
+
 ## Usage
 
 Download the latest binary release:
 
 ```shell
-wget -L https://github.com/e-minguez/file-to-machineconfig/releases/download/0.0.2/file-to-machineconfig-linux-amd64 && \
+wget -L https://github.com/e-minguez/file-to-machineconfig/releases/download/0.0.3/file-to-machineconfig-linux-amd64 && \
   mv file-to-machineconfig-linux-amd64 ./file-to-machineconfig && \
   chmod a+x ./file-to-machineconfig
 ```
@@ -99,8 +119,3 @@ Just to verify:
 echo "dm0uc3dhcHBpbmVzcz0xMAo=" | base64 -d
 vm.swappiness=10
 ```
-
-## To do
-
-* Improve the code (like A LOT)
-* Error handling
