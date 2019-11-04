@@ -176,7 +176,7 @@ func NewMachineConfig(data Parameters) MachineConfig.MachineConfig {
 	fileContent := "data:text/plain;charset=utf-8;base64,"
 
 	if data.Plain == true {
-		fileContent = "data:," + fileToPlain(data.LocalPath)
+		fileContent = fileToPlain(data.LocalPath)
 
 	} else {
 		// Create the base64 data with the proper ignition prefix
