@@ -14,6 +14,12 @@ all: test build
 
 build-all: build-linux build-osx build-windows
 
+prepare:
+  sudo dnf install -y golang git
+	mkdir -p "${HOME}/go/bin"
+	echo 'export GOPATH=${HOME}/go' >> ${HOME}/.bashrc
+	echo 'export PATH=${GOPATH}/bin:${PATH}' >> ${HOME}/.bashrc
+
 build: 
 	$(GOBUILD) -o $(BINARY_NAME) -v
 
