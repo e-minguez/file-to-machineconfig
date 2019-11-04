@@ -1,10 +1,8 @@
 package main
 
 import (
-	json "encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"runtime"
 
@@ -35,6 +33,7 @@ func main() {
 	flag.StringVar(&data.IgnitionVer, "ignitionversion", "", "Ignition version")
 	flag.IntVar(&data.Mode, "mode", 0, "File's permission mode in octal")
 	flag.BoolVar(&data.Plain, "plain", false, "Embed a plain file instead encoding it to base64 (false by default)")
+	flag.BoolVar(&data.Yaml, "yaml", false, "Use yaml output instead JSON (false by default)")
 
 	flag.Parse()
 
@@ -53,11 +52,12 @@ func main() {
 	// Fill the machine-config struct
 	mc := converter.NewMachineConfig(data)
 
-	// Convert the machine-config struct to json
-	// TO-DO: either json or yaml
-	b, err := json.Marshal(mc)
-	if err != nil {
-		log.Fatal(err)
+	// Convert and print the machine-config struct to json or yaml
+	switch {
+	case data.Yaml == true:
+		fmt.Println(converter.MachineConfigOutput(mc, "yaml"))
+	default:
+		fmt.Println(converter.MachineConfigOutput(mc, "json"))
 	}
-	fmt.Println(string(b))
+
 }

@@ -2,12 +2,15 @@ package converter
 
 import (
 	b64 "encoding/base64"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 
 	igntypes "github.com/coreos/ignition/config/v2_2/types"
 	MachineConfig "github.com/openshift/machine-config-operator/pkg/apis/machineconfiguration.openshift.io/v1"
@@ -28,6 +31,7 @@ type Parameters struct {
 	Content     string
 	Mode        int
 	Plain       bool
+	Yaml        bool
 }
 
 // Default values
@@ -215,4 +219,27 @@ func NewMachineConfig(data Parameters) MachineConfig.MachineConfig {
 	}
 
 	return mc
+}
+
+// MachineConfigOutput Convert a MachineConfig to a string
+func MachineConfigOutput(mc MachineConfig.MachineConfig, mode string) string {
+
+	switch {
+	case mode == "json":
+		b, err := json.Marshal(mc)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return string(b)
+	case mode == "yaml":
+		b, err := yaml.Marshal(mc)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return string(b)
+	default:
+		log.Fatalf("You shouldn't fail here...")
+	}
+
+	return ""
 }
