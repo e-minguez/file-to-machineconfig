@@ -10,7 +10,7 @@ import (
 	"runtime"
 	"strings"
 
-	"gopkg.in/yaml.v2"
+	"github.com/ghodss/yaml"
 
 	igntypes "github.com/coreos/ignition/config/v2_2/types"
 	MachineConfig "github.com/openshift/machine-config-operator/pkg/apis/machineconfiguration.openshift.io/v1"
@@ -135,27 +135,35 @@ func CheckParameters(rawdata *Parameters) {
 				nodetype = "worker"
 			}
 			r := strings.NewReplacer("/", "-", ".", "-")
-			rawdata.Name = strings.TrimSpace(defaultMachineConfigPrefix + nodetype + r.Replace(rawdata.RemotePath))
+			rawdata.Name = strings.ToLower(strings.TrimSpace(defaultMachineConfigPrefix + nodetype + r.Replace(rawdata.RemotePath)))
 			log.Printf("name not provided, using '%s' as name\n", rawdata.Name)
 		}
+	} else {
+		rawdata.Name = strings.ToLower(rawdata.Name)
 	}
 
 	// Set label if not provided
 	if rawdata.Labels == "" {
 		log.Printf("labels not provided, using '%s' by default", defaultLabel)
-		rawdata.Labels = defaultLabel
+		rawdata.Labels = strings.ToLower(defaultLabel)
+	} else {
+		rawdata.Labels = strings.ToLower(rawdata.Labels)
 	}
 
 	// Set filesystem if not provided
 	if rawdata.Filesystem == "" {
 		log.Printf("filesystem not provided, using '%s' by default", defaultFilesystem)
-		rawdata.Filesystem = defaultFilesystem
+		rawdata.Filesystem = strings.ToLower(defaultFilesystem)
+	} else {
+		rawdata.Filesystem = strings.ToLower(rawdata.Filesystem)
 	}
 
 	// Set apiver if not provided
 	if rawdata.APIVer == "" {
 		log.Printf("apiver not provided, using '%s' by default", defaultApiversion)
-		rawdata.APIVer = defaultApiversion
+		rawdata.APIVer = strings.ToLower(defaultApiversion)
+	} else {
+		rawdata.APIVer = strings.ToLower(rawdata.APIVer)
 	}
 
 	SetUserGroupMode(file, rawdata)
