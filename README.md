@@ -6,7 +6,7 @@ Simple tool to convert files to MachineConfig objects to be used with the machin
 
 ## Features
 
-- [x] Linux/OSX/Windows support (and binaries available as [releases/](releases))
+- [x] Linux/OSX/Windows support (and binaries available in [releases/](https://github.com/e-minguez/file-to-machineconfig/releases))
 - [x] remote path = local path if not provided
 - [x] remote owner/group = local if not provided
 - [x] sane defaults (...)
@@ -19,10 +19,10 @@ Simple tool to convert files to MachineConfig objects to be used with the machin
 
 ## To Do
 
-- [] Improve normalization and defaults
-- [] Multiple ignition version
-- [] Good code
-- [] Better error handling
+- [ ] Improve normalization and defaults
+- [ ] Multiple ignition version
+- [ ] Good code
+- [ ] Better error handling
 
 ## Usage
 
