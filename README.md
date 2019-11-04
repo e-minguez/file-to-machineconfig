@@ -40,7 +40,7 @@ Or, get the code with:
 go get -u -v github.com/e-minguez/file-to-machineconfig
 ```
 
-> **NOTE**: This means go shall be installed and GOPATH properly configured.
+> **NOTE**: This requires golang to be installed and GOPATH properly configured.
 
 Then:
 
@@ -57,60 +57,48 @@ Use `file-to-machineconfig --help` for a more complete usage and flags.
 ```shell
 echo "vm.swappiness=10" > ./myswap.conf
 
-file-to-machineconfig --file ./myswap.conf --remote /etc/sysctl.d/swappiness.conf > myswap.json
+file-to-machineconfig --file ./myswap.conf --remote /etc/sysctl.d/swappiness.conf -yaml > myswap.yaml
 ...[output]...
-2019/10/24 15:16:10 name not provided, using '99-worker-etc-sysctl-d-swappiness-conf' as name
-2019/10/24 15:16:10 mode not provided, using '0664' as the original file
-2019/10/24 15:16:10 user not provided, using 'edu' as the original file
-2019/10/24 15:16:10 group not provided, using 'edu' as the original file
+2019/11/04 14:55:40 name not provided, using '99-worker-etc-sysctl-d-swappiness-conf' as name
+2019/11/04 14:55:40 labels not provided, using 'machineconfiguration.openshift.io/role: worker' by default
+2019/11/04 14:55:40 filesystem not provided, using 'root' by default
+2019/11/04 14:55:40 apiver not provided, using 'machineconfiguration.openshift.io/v1' by default
+2019/11/04 14:55:40 user not provided, using 'edu' as the original file
+2019/11/04 14:55:40 group not provided, using 'edu' as the original file
+2019/11/04 14:55:40 mode not provided, using '0664' as the original file
 
-cat myswap.json | jq .
-{
-  "kind": "MachineConfig",
-  "apiVersion": "machineconfiguration.openshift.io/v1",
-  "metadata": {
-    "name": "99-worker-etc-sysctl-d-swappiness-conf",
-    "creationTimestamp": null,
-    "labels": {
-      "machineconfiguration.openshift.io/role": "worker"
-    }
-  },
-  "spec": {
-    "osImageURL": "",
-    "config": {
-      "ignition": {
-        "config": {},
-        "security": {
-          "tls": {}
-        },
-        "timeouts": {},
-        "version": "2.2"
-      },
-      "networkd": {},
-      "passwd": {},
-      "storage": {
-        "files": [
-          {
-            "filesystem": "root",
-            "group": {
-              "name": "edu"
-            },
-            "path": "/etc/sysctl.d/swappiness.conf",
-            "user": {
-              "name": "edu"
-            },
-            "contents": {
-              "source": "data:text/plain;charset=utf-8;base64,dm0uc3dhcHBpbmVzcz0xMAo=",
-              "verification": {}
-            },
-            "mode": 436
-          }
-        ]
-      },
-      "systemd": {}
-    }
-  }
-}
+cat ./myswap.yaml
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  creationTimestamp: null
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 99-worker-etc-sysctl-d-swappiness-conf
+spec:
+  config:
+    ignition:
+      config: {}
+      security:
+        tls: {}
+      timeouts: {}
+      version: 2.2.0
+    networkd: {}
+    passwd: {}
+    storage:
+      files:
+      - contents:
+          source: data:text/plain;charset=utf-8;base64,dm0uc3dhcHBpbmVzcz0xMAo=
+          verification: {}
+        filesystem: root
+        group:
+          name: edu
+        mode: 436
+        path: /etc/sysctl.d/swappiness.conf
+        user:
+          name: edu
+    systemd: {}
+  osImageURL: ""
 ```
 
 Just to verify:
