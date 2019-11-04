@@ -15,7 +15,7 @@ func printUsage() {
 	fmt.Printf("Usage: %s --file /local/path/to/my/file.txt [options]\n", os.Args[0])
 	fmt.Println("Options:")
 	flag.PrintDefaults()
-	fmt.Printf("Example:\n%s --file /local/path/to/my/file.txt --filepath /path/to/remote/file.txt --label \"machineconfiguration.openshift.io/role: master\",\"example.com/foo: bar\"\n", os.Args[0])
+	fmt.Printf("Example:\n%s --file /local/path/to/my/file.txt --filepath /path/to/remote/file.txt --plain --label \"machineconfiguration.openshift.io/role: master\",\"example.com/foo: bar\"\n", os.Args[0])
 	os.Exit(1)
 }
 
@@ -34,6 +34,7 @@ func main() {
 	flag.StringVar(&data.APIVer, "apiversion", "", "MachineConfig API version")
 	flag.StringVar(&data.IgnitionVer, "ignitionversion", "", "Ignition version")
 	flag.IntVar(&data.Mode, "mode", 0, "File's permission mode in octal")
+	flag.BoolVar(&data.Plain, "plain", false, "Embed a plain file instead encoding it to base64 (false by default)")
 
 	flag.Parse()
 
