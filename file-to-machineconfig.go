@@ -13,7 +13,7 @@ func printUsage() {
 	fmt.Printf("Usage: %s --file /local/path/to/my/file.txt [options]\n", os.Args[0])
 	fmt.Println("Options:")
 	flag.PrintDefaults()
-	fmt.Printf("Example:\n%s --file /local/path/to/my/file.txt --filepath /path/to/remote/file.txt --plain --label \"machineconfiguration.openshift.io/role: master\",\"example.com/foo: bar\"\n", os.Args[0])
+	fmt.Printf("Example:\n%s --file /local/path/to/my/file.txt --remote /path/to/remote/file.txt --plain --label \"machineconfiguration.openshift.io/role: master\",\"example.com/foo: bar\"\n", os.Args[0])
 	os.Exit(1)
 }
 
