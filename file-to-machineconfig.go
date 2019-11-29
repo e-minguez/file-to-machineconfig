@@ -32,7 +32,6 @@ func main() {
 	flag.StringVar(&data.APIVer, "apiversion", "", "MachineConfig API version")
 	flag.StringVar(&data.IgnitionVer, "ignitionversion", "", "Ignition version")
 	flag.IntVar(&data.Mode, "mode", 0, "File's permission mode in octal")
-	flag.BoolVar(&data.Plain, "plain", false, "Embed a plain file instead encoding it to base64 (false by default)")
 	flag.BoolVar(&data.Yaml, "yaml", false, "Use yaml output instead JSON (false by default)")
 
 	flag.Parse()

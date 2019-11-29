@@ -13,7 +13,6 @@ Simple tool to convert files to MachineConfig objects to be used with the machin
 - [x] normalized parameters (...)
 - [x] multiple labels support
 - [x] base64 file encoded content support
-- [x] plain file content support
 - [x] json output
 - [x] yaml output
 
@@ -23,6 +22,10 @@ Simple tool to convert files to MachineConfig objects to be used with the machin
 - [ ] Multiple ignition version
 - [ ] Good code
 - [ ] Better error handling
+
+## Not working
+
+- [ ] [plain file content support](https://github.com/e-minguez/file-to-machineconfig/issues/13)
 
 ## Usage
 
