@@ -30,7 +30,6 @@ type Parameters struct {
 	IgnitionVer string
 	Content     string
 	Mode        int
-	Plain       bool
 	Yaml        bool
 }
 
@@ -52,15 +51,6 @@ func fileToBase64(file string) string {
 		log.Fatal("The content of the file couldn't be encoded in base64")
 	}
 	return encodedcontent
-}
-
-// fileToPlain Create a single string from a file
-func fileToPlain(file string) string {
-	f, err := ioutil.ReadFile(file)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return string(f)
 }
 
 // labelsToMap Creates a string map with the labels the user provides
@@ -175,13 +165,8 @@ func NewMachineConfig(data Parameters) MachineConfig.MachineConfig {
 	// Default content will be base64
 	fileContent := "data:text/plain;charset=utf-8;base64,"
 
-	if data.Plain == true {
-		fileContent = fileToPlain(data.LocalPath)
-
-	} else {
-		// Create the base64 data with the proper ignition prefix
-		fileContent += fileToBase64(data.LocalPath)
-	}
+	// Create the base64 data with the proper ignition prefix
+	fileContent += fileToBase64(data.LocalPath)
 
 	// Create a map with the labels (as required by the machine-config struct)
 	labelmap := labelsToMap(data.Labels)
