@@ -29,7 +29,8 @@ Simple tool to convert files to MachineConfig objects to be used with the machin
 
 ## Usage
 
-Download the latest binary release:
+If using Fedora/CentOS, you can use [this copr](https://copr.fedorainfracloud.org/coprs/eminguez/eminguez-RPMs/),
+otherwise download the latest binary release:
 
 ```shell
 wget -L https://github.com/e-minguez/file-to-machineconfig/releases/download/0.0.3/file-to-machineconfig-linux-amd64 && \
